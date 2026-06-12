@@ -1,0 +1,13 @@
+# Build artifacts
+*.o
+kernel/*.o
+kernel.bin
+myos.iso
+isodir/
+serial.log
+
+# OS-Build directory
+OS-Build/
+
+# macOS system files
+.DS_Store
