@@ -4,7 +4,7 @@ A lightweight, Multiboot-1 compliant x86 operating system written in C and Assem
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 | Component | Description |
 |---|---|
@@ -22,7 +22,7 @@ A lightweight, Multiboot-1 compliant x86 operating system written in C and Assem
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 * [Makefile](file:///Users/pratikgautam/Documents/BSIT338OS/Makefile) - Automated build and emulation targets.
 * [linker.ld](file:///Users/pratikgautam/Documents/BSIT338OS/linker.ld) - Kernel linker script (sections aligned to 4KB, starting at 1MB).
@@ -47,7 +47,7 @@ A lightweight, Multiboot-1 compliant x86 operating system written in C and Assem
 
 ---
 
-## 🛠️ Requirements & Toolchain
+##  Requirements & Toolchain
 
 To build and run this operating system, you will need:
 
@@ -64,7 +64,7 @@ brew install nasm qemu xorriso
 
 ---
 
-## ⚙️ Compilation & Execution
+## Compilation & Execution
 
 The system uses a `Makefile` to automate compilation and running commands.
 
@@ -89,7 +89,7 @@ make clean
 
 ---
 
-## 🔍 Detailed Component Walkthrough
+## Detailed Component Walkthrough
 
 ### 1. Boot Sequence & Multiboot Headers
 When the GRUB bootloader loads `myos.iso`, it searches for the Multiboot-1 compliant header defined in [boot.asm](file:///Users/pratikgautam/Documents/BSIT338OS/boot.asm). GRUB then sets up the CPU, loads the kernel at physical address `1MB` (as instructed by [linker.ld](file:///Users/pratikgautam/Documents/BSIT338OS/linker.ld)), passes the Multiboot magic signature (`0x2BADB002`) and the info structure address in registers `eax` and `ebx`, and jumps to `_start`.
@@ -122,7 +122,7 @@ Using the `procs` shell command, the OS launches two concurrent processes. Each 
 
 ---
 
-## 💻 Interactive Shell Commands
+##  Interactive Shell Commands
 
 Once booted, the shell is exposed on VGA and standard output. The available commands are:
 
