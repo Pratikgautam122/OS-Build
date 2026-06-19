@@ -137,13 +137,25 @@ void kfree(void* ptr) {
 }
 
 void heap_dump(void) {
+    unsigned char old_color = vga_get_color();
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
     vga_printf("=== Heap Dump ===\n");
     struct heap_block* curr = (struct heap_block*)HEAP_START;
     int index = 0;
     while (curr != NULL) {
-        vga_printf("Block %d: Addr %x, Size %d bytes, %s\n", 
-                   index++, (unsigned int)curr, curr->size, curr->free ? "FREE" : "USED");
+        vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+        vga_printf("Block %d: Addr %x, Size %d bytes, ", 
+                   index++, (unsigned int)curr, curr->size);
+        if (curr->free) {
+            vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
+            vga_printf("FREE\n");
+        } else {
+            vga_set_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK);
+            vga_printf("USED\n");
+        }
         curr = curr->next;
     }
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
     vga_printf("=================\n");
+    vga_set_color(old_color & 0x0F, (old_color >> 4) & 0x0F);
 }

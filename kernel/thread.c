@@ -126,8 +126,11 @@ void schedule(void) {
         // Reset quantum ticks on context switch
         thread_ticks = 0;
 
-        if (scheduling_trace) {
+        if (scheduling_trace && old->tid != 1 && next->tid != 1) {
+            unsigned char old_color = vga_get_color();
+            vga_set_color(VGA_COLOR_DARK_GREY, VGA_COLOR_BLACK);
             vga_printf("[Sched] TID %d -> TID %d\n", old->tid, next->tid);
+            vga_set_color(old_color & 0x0F, (old_color >> 4) & 0x0F);
         }
 
         // Update TSS kernel stack pointer (if this thread belongs to a user process)

@@ -20,7 +20,10 @@ static volatile int demo_threads_running = 0;
 
 static void demo_thread_A(void) {
     for (int i = 0; i < 80; i++) {
+        unsigned char old = vga_get_color();
+        vga_set_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK);
         vga_putc('A');
+        vga_set_color(old & 0x0F, (old >> 4) & 0x0F);
         for (volatile int j = 0; j < 500000; j++);
     }
     demo_threads_running--;
@@ -29,7 +32,10 @@ static void demo_thread_A(void) {
 
 static void demo_thread_B(void) {
     for (int i = 0; i < 80; i++) {
+        unsigned char old = vga_get_color();
+        vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
         vga_putc('B');
+        vga_set_color(old & 0x0F, (old >> 4) & 0x0F);
         for (volatile int j = 0; j < 500000; j++);
     }
     demo_threads_running--;
@@ -38,7 +44,10 @@ static void demo_thread_B(void) {
 
 static void demo_thread_C(void) {
     for (int i = 0; i < 80; i++) {
+        unsigned char old = vga_get_color();
+        vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
         vga_putc('C');
+        vga_set_color(old & 0x0F, (old >> 4) & 0x0F);
         for (volatile int j = 0; j < 500000; j++);
     }
     demo_threads_running--;
@@ -50,29 +59,75 @@ static void demo_thread_C(void) {
 #define CMD_BUF_SIZE 128
 
 static void shell_print_prompt(void) {
-    vga_printf("myos> ");
+    vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
+    vga_printf("nidhogg> ");
+    vga_set_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
 }
 
 static void shell_print_help(void) {
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
     vga_printf("Available commands:\n");
-    vga_printf("  help     - Show this help\n");
-    vga_printf("  clear    - Clear the screen\n");
-    vga_printf("  info     - Show system information\n");
-    vga_printf("  threads  - Demo: spawn 3 kernel threads (A, B, C)\n");
-    vga_printf("  procs    - Demo: spawn 2 isolated user-mode processes\n");
-    vga_printf("  trace    - Toggle scheduler trace logging\n");
-    vga_printf("  mouse    - Show current mouse position\n");
-    vga_printf("  heap     - Show heap block dump\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  help     - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Show this help\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  clear    - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Clear the screen\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  info     - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Show system information\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  threads  - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Demo: spawn 3 kernel threads (A, B, C)\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  procs    - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Demo: spawn 2 isolated user-mode processes\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  trace    - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Toggle scheduler trace logging\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  mouse    - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Show current mouse position\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("  heap     - ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Show heap block dump\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 }
 
 static void shell_print_info(void) {
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
     vga_printf("=== System Information ===\n");
-    vga_printf("Kernel: myos (BSIT338OS)\n");
-    vga_printf("Architecture: i686 (x86 Protected Mode)\n");
-    vga_printf("Total Memory: %u MB\n", (unsigned int)(pmm_get_total_memory() / (1024 * 1024)));
-    vga_printf("Free Memory:  %u MB\n", (unsigned int)(pmm_get_free_memory() / (1024 * 1024)));
-    vga_printf("Scheduler: Round Robin (quantum = 10 ticks, 100 Hz PIT)\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("Kernel:       ");
+    vga_set_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
+    vga_printf("Nidhogg OS (BSIT338OS)\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("Architecture: ");
+    vga_set_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
+    vga_printf("i686 (x86 Protected Mode)\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("Total Memory: ");
+    vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
+    vga_printf("%u MB\n", (unsigned int)(pmm_get_total_memory() / (1024 * 1024)));
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("Free Memory:  ");
+    vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
+    vga_printf("%u MB\n", (unsigned int)(pmm_get_free_memory() / (1024 * 1024)));
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_printf("Scheduler:    ");
+    vga_set_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
+    vga_printf("Round Robin (quantum = 10 ticks, 100 Hz PIT)\n");
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
     vga_printf("==========================\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 }
 
 static void shell_cmd_threads(void) {
@@ -114,10 +169,20 @@ void shell_run(void) {
     int cmd_pos = 0;
 
     vga_printf("\n");
-    vga_printf("========================================\n");
-    vga_printf("  Welcome to myos Interactive Shell\n");
-    vga_printf("  Type 'help' for available commands\n");
-    vga_printf("========================================\n\n");
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
+    vga_printf("+-----------------------------------------+\n");
+    vga_printf("| ");
+    vga_set_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
+    vga_printf("Welcome to Nidhogg OS Interactive Shell");
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
+    vga_printf(" |\n");
+    vga_printf("| ");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_printf("Type 'help' for available commands");
+    vga_set_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
+    vga_printf("      |\n");
+    vga_printf("+-----------------------------------------+\n\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 
     shell_print_prompt();
 
@@ -130,6 +195,7 @@ void shell_run(void) {
         char c = keyboard_getchar();
 
         if (c == '\n') {
+            vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
             vga_putc('\n');
             cmd_buf[cmd_pos] = '\0';
 

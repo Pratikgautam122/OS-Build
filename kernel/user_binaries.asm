@@ -7,6 +7,8 @@ global user_proc2_size
 section .rodata
 
 user_proc1_start:
+    mov esi, 20        ; Loop 20 times
+.loop:
     ; Write 0x11111111 to 0x40100F00 (stack page is writable)
     mov eax, 0x40100F00
     mov dword [eax], 0x11111111
@@ -49,13 +51,21 @@ user_proc1_start:
     ; Yield again
     mov eax, 2         ; SYS_YIELD
     int 0x80
-    jmp user_proc1_start
+    
+    dec esi
+    jnz .loop
+    
+    ; Exit cleanly
+    mov eax, 3         ; SYS_EXIT
+    int 0x80
 user_proc1_end:
 
 user_proc1_size: dd (user_proc1_end - user_proc1_start)
 
 
 user_proc2_start:
+    mov esi, 20        ; Loop 20 times
+.loop:
     ; Write 0x22222222 to 0x40100F00
     mov eax, 0x40100F00
     mov dword [eax], 0x22222222
@@ -98,7 +108,13 @@ user_proc2_start:
     ; Yield again
     mov eax, 2         ; SYS_YIELD
     int 0x80
-    jmp user_proc2_start
+    
+    dec esi
+    jnz .loop
+    
+    ; Exit cleanly
+    mov eax, 3         ; SYS_EXIT
+    int 0x80
 user_proc2_end:
 
 user_proc2_size: dd (user_proc2_end - user_proc2_start)

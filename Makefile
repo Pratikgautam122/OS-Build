@@ -19,7 +19,7 @@ OBJS = $(AS_OBJS) $(C_OBJS)
 
 .PHONY: all clean run
 
-all: myos.iso
+all: nidhogg.iso
 
 %.o: %.asm
 	$(AS) -f elf32 $< -o $@
@@ -30,20 +30,20 @@ all: myos.iso
 kernel.bin: $(OBJS) linker.ld
 	$(LD) -o $@ $(OBJS) $(LDFLAGS)
 
-myos.iso: kernel.bin
+nidhogg.iso: kernel.bin
 	mkdir -p isodir/boot/grub
 	cp kernel.bin isodir/boot/kernel.bin
 	echo 'set timeout=0' > isodir/boot/grub/grub.cfg
 	echo 'set default=0' >> isodir/boot/grub/grub.cfg
 	echo '' >> isodir/boot/grub/grub.cfg
-	echo 'menuentry "myos" {' >> isodir/boot/grub/grub.cfg
+	echo 'menuentry "Nidhogg OS" {' >> isodir/boot/grub/grub.cfg
 	echo '  multiboot /boot/kernel.bin' >> isodir/boot/grub/grub.cfg
 	echo '  boot' >> isodir/boot/grub/grub.cfg
 	echo '}' >> isodir/boot/grub/grub.cfg
-	$(GRUB_MKRESCUE) -o myos.iso isodir
+	$(GRUB_MKRESCUE) -o nidhogg.iso isodir
 
-run: myos.iso
-	qemu-system-i386 -cdrom myos.iso -serial stdio
+run: nidhogg.iso
+	qemu-system-i386 -cdrom nidhogg.iso -serial stdio -display cocoa,full-screen=on,zoom-to-fit=on
 
 clean:
-	rm -rf $(OBJS) kernel.bin myos.iso isodir
+	rm -rf $(OBJS) kernel.bin nidhogg.iso isodir

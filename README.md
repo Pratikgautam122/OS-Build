@@ -1,4 +1,4 @@
-# BSIT338OS (myos) - 32-bit x86 Protected Mode Kernel
+# BSIT338OS (Nidhogg OS) - 32-bit x86 Protected Mode Kernel
 
 A lightweight, Multiboot-1 compliant x86 operating system written in C and Assembly, running in 32-bit Protected Mode. The system features a custom memory management stack, cooperative and preemptive multi-threaded scheduling, virtual address space isolation for user-mode processes, basic device drivers, system calls, and an interactive command shell.
 
@@ -8,7 +8,7 @@ A lightweight, Multiboot-1 compliant x86 operating system written in C and Assem
 
 | Component | Description |
 |---|---|
-| **Bootloader** | Multiboot-1 compliant boot setup, loaded via GRUB to produce a bootable ISO (`myos.iso`). |
+| **Bootloader** | Multiboot-1 compliant boot setup, loaded via GRUB to produce a bootable ISO (`nidhogg.iso`). |
 | **GDT & TSS** | Configures GDT segments for both kernel (Ring 0) and user space (Ring 3), incorporating TSS for Ring transitions. |
 | **Interrupts (IDT & PIC)** | Handles CPU exceptions and remapped hardware interrupts (IRQ0-15), supporting keyboard, mouse, and timer IRQs. |
 | **Physical Memory Manager** | Bitmap-based PMM that parses the Multiboot memory map structure to dynamically manage available RAM. |
@@ -73,7 +73,7 @@ Compile source files, link the kernel, and build a bootable ISO:
 ```bash
 make
 ```
-This builds `kernel.bin` and generates the bootable image `myos.iso` under the root directory.
+This builds `kernel.bin` and generates the bootable image `nidhogg.iso` under the root directory.
 
 ### 2. Run in QEMU
 Launch the emulator with the generated ISO, mapping the serial interface to standard output:
@@ -92,7 +92,7 @@ make clean
 ## Detailed Component Walkthrough
 
 ### 1. Boot Sequence & Multiboot Headers
-When the GRUB bootloader loads `myos.iso`, it searches for the Multiboot-1 compliant header defined in [boot.asm](file:///Users/pratikgautam/Documents/BSIT338OS/boot.asm). GRUB then sets up the CPU, loads the kernel at physical address `1MB` (as instructed by [linker.ld](file:///Users/pratikgautam/Documents/BSIT338OS/linker.ld)), passes the Multiboot magic signature (`0x2BADB002`) and the info structure address in registers `eax` and `ebx`, and jumps to `_start`.
+When the GRUB bootloader loads `nidhogg.iso`, it searches for the Multiboot-1 compliant header defined in [boot.asm](file:///Users/pratikgautam/Documents/BSIT338OS/boot.asm). GRUB then sets up the CPU, loads the kernel at physical address `1MB` (as instructed by [linker.ld](file:///Users/pratikgautam/Documents/BSIT338OS/linker.ld)), passes the Multiboot magic signature (`0x2BADB002`) and the info structure address in registers `eax` and `ebx`, and jumps to `_start`.
 
 The `_start` entry point:
 - Sets up the temporary 16 KiB kernel stack (`stack_top`).

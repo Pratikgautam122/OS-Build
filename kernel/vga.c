@@ -42,44 +42,114 @@ static void update_cursor(void) {
     outb(0x3D5, (unsigned char)((position >> 8) & 0xFF));
 }
 
+#define TOP_BAR_ROW 0
+#define BOTTOM_BAR_ROW 24
+#define SCREEN_START_ROW 1
+#define SCREEN_END_ROW 23
+
+static int mystrlen(const char* s) {
+    int len = 0;
+    while (s[len] != '\0') {
+        len++;
+    }
+    return len;
+}
+
+static void draw_top_bar(void) {
+    // Light Gray background, Black text (0x70)
+    unsigned char bar_color = 0x70; 
+    unsigned short blank = ' ' | (bar_color << 8);
+    for (int x = 0; x < VGA_WIDTH; x++) {
+        VGA_MEMORY[x] = blank;
+    }
+    
+    const char* title = "  Nidhogg OS v1.0.0  ";
+    const char* center = "32-bit Protected Mode Kernel";
+    const char* right = "Active  ";
+    
+    int len = mystrlen(title);
+    for (int i = 0; i < len; i++) {
+        VGA_MEMORY[i] = title[i] | (bar_color << 8);
+    }
+    
+    int center_len = mystrlen(center);
+    int center_start = (VGA_WIDTH - center_len) / 2;
+    for (int i = 0; i < center_len; i++) {
+        VGA_MEMORY[center_start + i] = center[i] | (bar_color << 8);
+    }
+    
+    int right_len = mystrlen(right);
+    int right_start = VGA_WIDTH - right_len;
+    for (int i = 0; i < right_len; i++) {
+        VGA_MEMORY[right_start + i] = right[i] | (bar_color << 8);
+    }
+}
+
+static void draw_bottom_bar(void) {
+    // Blue background, White text (0x1F)
+    unsigned char bar_color = 0x1F; 
+    unsigned short blank = ' ' | (bar_color << 8);
+    for (int x = 0; x < VGA_WIDTH; x++) {
+        VGA_MEMORY[BOTTOM_BAR_ROW * VGA_WIDTH + x] = blank;
+    }
+    
+    const char* help_text = "  Commands: help | clear | info | threads | procs | heap | mouse | trace";
+    int len = mystrlen(help_text);
+    for (int i = 0; i < len; i++) {
+        VGA_MEMORY[BOTTOM_BAR_ROW * VGA_WIDTH + i] = help_text[i] | (bar_color << 8);
+    }
+}
+
 void vga_init(void) {
     init_serial();
     vga_clear();
 }
 
 void vga_clear(void) {
-    unsigned short blank = ' ' | (text_color << 8);
-    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
-        VGA_MEMORY[i] = blank;
+    unsigned char bg = (text_color >> 4) & 0x0F;
+    unsigned char clear_color = (bg << 4) | 0x0F;
+    unsigned short blank = ' ' | (clear_color << 8);
+    
+    for (int y = SCREEN_START_ROW; y <= SCREEN_END_ROW; y++) {
+        for (int x = 0; x < VGA_WIDTH; x++) {
+            VGA_MEMORY[y * VGA_WIDTH + x] = blank;
+        }
     }
+    
+    draw_top_bar();
+    draw_bottom_bar();
+    
     cursor_x = 0;
-    cursor_y = 0;
+    cursor_y = SCREEN_START_ROW;
     update_cursor();
 }
 
 static void scroll(void) {
-    unsigned short blank = ' ' | (text_color << 8);
-    if (cursor_y >= VGA_HEIGHT) {
-        // Move lines up
-        for (int i = 0; i < (VGA_HEIGHT - 1) * VGA_WIDTH; i++) {
-            VGA_MEMORY[i] = VGA_MEMORY[i + VGA_WIDTH];
+    if (cursor_y > SCREEN_END_ROW) {
+        unsigned char bg = (text_color >> 4) & 0x0F;
+        unsigned char clear_color = (bg << 4) | 0x0F;
+        unsigned short blank = ' ' | (clear_color << 8);
+        
+        for (int y = SCREEN_START_ROW + 1; y <= SCREEN_END_ROW; y++) {
+            for (int x = 0; x < VGA_WIDTH; x++) {
+                VGA_MEMORY[(y - 1) * VGA_WIDTH + x] = VGA_MEMORY[y * VGA_WIDTH + x];
+            }
         }
-        // Clear last line
-        for (int i = (VGA_HEIGHT - 1) * VGA_WIDTH; i < VGA_HEIGHT * VGA_WIDTH; i++) {
-            VGA_MEMORY[i] = blank;
+        
+        for (int x = 0; x < VGA_WIDTH; x++) {
+            VGA_MEMORY[SCREEN_END_ROW * VGA_WIDTH + x] = blank;
         }
-        cursor_y = VGA_HEIGHT - 1;
+        
+        cursor_y = SCREEN_END_ROW;
     }
 }
 
 void vga_putc(char c) {
-    // Mirror to serial port
     if (c == '\n') {
         write_serial('\r');
     }
     write_serial(c);
 
-    // Handle special characters
     if (c == '\n') {
         cursor_x = 0;
         cursor_y++;
@@ -87,6 +157,10 @@ void vga_putc(char c) {
         cursor_x = 0;
     } else if (c == '\t') {
         cursor_x = (cursor_x + 8) & ~7;
+    } else if (c == '\b') {
+        if (cursor_x > 0) {
+            cursor_x--;
+        }
     } else {
         unsigned short attribute = text_color << 8;
         unsigned short* location = (unsigned short*)VGA_MEMORY + (cursor_y * VGA_WIDTH + cursor_x);
@@ -100,6 +174,24 @@ void vga_putc(char c) {
     }
 
     scroll();
+    update_cursor();
+}
+
+void vga_set_color(unsigned char fg, unsigned char bg) {
+    text_color = fg | (bg << 4);
+}
+
+unsigned char vga_get_color(void) {
+    return text_color;
+}
+
+void vga_set_cursor(int x, int y) {
+    if (x >= 0 && x < VGA_WIDTH) {
+        cursor_x = x;
+    }
+    if (y >= SCREEN_START_ROW && y <= SCREEN_END_ROW) {
+        cursor_y = y;
+    }
     update_cursor();
 }
 
