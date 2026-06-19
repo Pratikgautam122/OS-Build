@@ -43,9 +43,9 @@ static void update_cursor(void) {
 }
 
 #define TOP_BAR_ROW 0
-#define BOTTOM_BAR_ROW 24
+#define BOTTOM_BAR_ROW 23
 #define SCREEN_START_ROW 1
-#define SCREEN_END_ROW 23
+#define SCREEN_END_ROW 22
 
 static int mystrlen(const char* s) {
     int len = 0;
@@ -114,6 +114,12 @@ void vga_clear(void) {
         for (int x = 0; x < VGA_WIDTH; x++) {
             VGA_MEMORY[y * VGA_WIDTH + x] = blank;
         }
+    }
+    
+    // Clear row 24 to black/blank to prevent garbage if visible
+    unsigned short black_blank = ' ' | (0x0F << 8);
+    for (int x = 0; x < VGA_WIDTH; x++) {
+        VGA_MEMORY[24 * VGA_WIDTH + x] = black_blank;
     }
     
     draw_top_bar();

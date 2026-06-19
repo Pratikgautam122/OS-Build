@@ -60,7 +60,7 @@ static void demo_thread_C(void) {
 
 static void shell_print_prompt(void) {
     vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
-    vga_printf("nidhogg> ");
+    vga_printf("Nidhogg> ");
     vga_set_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
 }
 
